@@ -18,13 +18,17 @@ package com.example.contractclientdemo;
 
 import org.springframework.beans.factory.FactoryBean;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.EnvironmentAware;
+import org.springframework.core.env.Environment;
 
-class ClientFactoryBean implements FactoryBean<DemoFeignClient> {
+class ClientFactoryBean implements FactoryBean<DemoFeignClient>, EnvironmentAware {
 
     private String url;
+    private Environment environment;
 
     @Override
     public DemoFeignClient getObject() throws Exception {
+        url = resolve(url);
         System.err.println("Create URL: " + url);
         return () -> {
             System.err.println("Use URL: " + url);
@@ -32,6 +36,10 @@ class ClientFactoryBean implements FactoryBean<DemoFeignClient> {
                 throw new IllegalStateException("Wrong URL: " + url);
             }
         };
+    }
+
+    private String resolve(String value) {
+        return environment.resolvePlaceholders(value);
     }
 
     @Override
@@ -45,6 +53,11 @@ class ClientFactoryBean implements FactoryBean<DemoFeignClient> {
 
     public void setUrl(String url) {
         this.url = url;
+    }
+
+    @Override
+    public void setEnvironment(Environment environment) {
+        this.environment = environment;
     }
 
 }

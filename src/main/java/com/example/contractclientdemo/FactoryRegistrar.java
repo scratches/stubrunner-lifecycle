@@ -24,8 +24,11 @@ import org.springframework.core.type.AnnotationMetadata;
 class FactoryRegistrar implements ImportBeanDefinitionRegistrar {
     @Override
     public void registerBeanDefinitions(AnnotationMetadata importingClassMetadata, BeanDefinitionRegistry registry) {
-        BeanDefinitionBuilder beanDefinition = BeanDefinitionBuilder.rootBeanDefinition(ClientFactoryBean.class);
-        beanDefinition.addPropertyValue("url", "${test.url}");
+        BeanDefinitionBuilder beanDefinition = BeanDefinitionBuilder.genericBeanDefinition(ClientFactoryBean.class, () -> {
+            ClientFactoryBean factory = new ClientFactoryBean();
+            factory.setUrl("${test.url}");
+            return factory;
+        });
         registry.registerBeanDefinition("client", beanDefinition.getBeanDefinition());
     }
 }
